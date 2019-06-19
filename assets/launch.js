@@ -36,6 +36,7 @@ cc.Class({
                         this.uploadScore(data);
                     break;
                     case "openid":
+                        this._selfOpenId = data.v;
                     break;
                 }
             }
@@ -154,6 +155,7 @@ cc.Class({
 
             if(element.openid == this._selfOpenId){//玩家本身
                 this.setSelfRank(rankingLa.string)
+                console.log("设置自身排名成功！");
             }
             element.KVDataList.forEach(e => {
                 if(e.key == "rank_1"){
@@ -192,11 +194,11 @@ cc.Class({
             return false;
         }else if(rank == "rank_2"){
             if(this._currUserScore_lv2 <= 0)return true;
-            if(this._currUserScore_lv3 < score)return true;
+            if(this._currUserScore_lv2 < score)return true;
             return false;
         }else if(rank == "rank_3"){
             if(this._currUserScore_lv3 <= 0)return true;
-            if(this._currUserScore_lv4 < score)return true;
+            if(this._currUserScore_lv3 < score)return true;
             return false;
         }
 
