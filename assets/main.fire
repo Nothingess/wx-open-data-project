@@ -44,8 +44,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5763993948562783,
-      "y": 0.5763993948562783,
+      "x": 0.5136836161231061,
+      "y": 0.5136836161231061,
       "z": 1
     },
     "_quat": {
@@ -1074,7 +1074,7 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_spriteFrame": {
-      "__uuid__": "1a967b44-cb7c-4ee0-ac78-854b107b6b0b"
+      "__uuid__": "7f77985f-6112-4729-b5b9-c2864970e95c"
     },
     "_type": 0,
     "_sizeMode": 0,
@@ -1601,8 +1601,25 @@
     "selfBlock": {
       "__id__": 9
     },
-    "map": [],
-    "score": [],
+    "rankItems": [
+      {
+        "__uuid__": "b3c4993e-f369-4363-a918-016e9f492d6f"
+      },
+      {
+        "__uuid__": "28f9eb96-2b36-4c02-b8d6-99cee01e0282"
+      },
+      {
+        "__uuid__": "82b4dc97-d9e3-40f0-b894-5ea3f5f14b51"
+      },
+      {
+        "__uuid__": "b7ceed15-bb03-49da-b24e-3171a1caf0bf"
+      }
+    ],
+    "_selfData": null,
+    "_selfOpenId": 0,
+    "_currUserScore_lv1": 0,
+    "_currUserScore_lv2": 0,
+    "_currUserScore_lv3": 0,
     "_id": "47jsAE0f1FsZ6WoTLVEPRb"
   }
 ]
