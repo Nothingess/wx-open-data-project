@@ -7,58 +7,81 @@ cc.Class({
     properties: {
         content: cc.Node,
         prefab: cc.Prefab,
-        selfBlock:cc.Node,
+        selfBlock: cc.Node,
 
-        rankItems:{
-            default:[],
-            type:[cc.Texture2D]
+        rankItems: {
+            default: [],
+            type: [cc.Texture2D]
         },
 
-        _selfData:null,
-        _selfOpenId:0,
-        _currUserScore_lv1:0,           //第一关分数
-        _currUserScore_lv2:0,           //第二关分数
-        _currUserScore_lv3:0            //第三关分数
+        rankIcon: {
+            default: [],
+            type: [cc.Texture2D]
+        },
+
+        _selfData: null,
+        _selfOpenId: 0,
+        _currUserScore_lv1: 0,           //第一关分数
+        _currUserScore_lv2: 0,           //第二关分数
+        _currUserScore_lv3: 0,           //第三关分数
+
+        _updateTimer: 0
     },
 
-    start () {
+    start() {
 
         if (typeof wx === 'undefined') {
             return;
         }
 
-        wx.onMessage( data => {
+        wx.onMessage(data => {
             if (!!data) {
-                switch(data.k){
+                switch (data.k) {
                     case "rank_1":
                     case "rank_2":
                     case "rank_3":
                         this.uploadScore(data);
-                    break;
+                        break;
                     case "openid":
                         this._selfOpenId = data.v;
-                    break;
+                        break;
+                    case "update":
+                        this.updateRank("rank_1", 1);
+                        this.selfBlock.getChildByName('me').active = false;
+                        break;
+                    case "s_1":
+                        this.updateRank("rank_1", 1);
+                        this.selfBlock.getChildByName('me').active = false;
+                        break;
+                    case "s_2":
+                        this.updateRank("rank_2", 1);
+                        this.selfBlock.getChildByName('me').active = false;
+                        break;
+                    case "s_3":
+                        this.updateRank("rank_3", 1);
+                        this.selfBlock.getChildByName('me').active = false;
+                        break;
+                    case "s_33":
+                        this.updateRank("rank_3", 1);
+                        this.selfBlock.getChildByName('me').active = true;
+                        break;
                 }
             }
         });
 
-        this.initUserInfo();
+        this.initUserInfo("rank_1");
     },
     /**上传分数 */
-    uploadScore(data){
-        let kvData = [{key:data.k, value:data.v}]
+    uploadScore(data) {
+        let kvData = [{ key: data.k, value: data.v }]
         this.setUserCloudStorage(kvData);
     },
-    /**获取openid */
-    getSelfOpenId(){
-
-    },
 
 
-    initUserInfo () {
+    initUserInfo(rank) {
         wx.getUserCloudStorage({
-            keyList:["rank_1", "rank_2"],
-            success:(res)=>{
+            keyList: ["rank_1", "rank_2", "rank_3"],
+            success: (res) => {
                 this._selfData = res.KVDataList;
             }
         })
@@ -66,8 +89,8 @@ cc.Class({
             openIdList: ['selfOpenId'],
             lang: 'zh_CN',
             success: (res) => {
-                this.showUserRank(res.data[0]);
-                this.initFriendInfo();
+                this.showUserRank(res.data[0], rank);
+                this.initFriendInfo(rank);
             },
             fail: (res) => {
                 console.error(res);
@@ -75,11 +98,11 @@ cc.Class({
         });
     },
 
-    initFriendInfo () {
+    initFriendInfo(rank) {
         wx.getFriendCloudStorage({
-            keyList:["rank_1", "rank_2"],
+            keyList: ["rank_1", "rank_2", "rank_3"],
             success: (res) => {
-                this.showFriendRank(this.sortList(res.data));
+                this.showFriendRank(this.sortList(res.data, rank), rank);
             },
             fail: (res) => {
                 console.error(res);
@@ -87,24 +110,26 @@ cc.Class({
         });
     },
 
-    showUserRank(user){
+    showUserRank(user, rank) {
         let self = this;
         let userName = this.selfBlock.getChildByName('userName').getComponent(cc.Label);
         userName.string = user.nickName || user.nickname;
-        this._selfOpenId = user.openId;
-        cc.loader.load({url: user.avatarUrl, type: 'png'}, (err, texture) => {
+        //this._selfOpenId = user.openId;
+        cc.loader.load({ url: user.avatarUrl, type: 'png' }, (err, texture) => {
             if (err) console.error(err);
             let userIcon = self.selfBlock.getChildByName('avatar').children[0].getComponent(cc.Sprite);
             let scoreLa = self.selfBlock.getChildByName("score").getComponent(cc.Label);
             userIcon.spriteFrame = new cc.SpriteFrame(texture);
-            if(self._selfData != null){
+            if (self._selfData != null) {
                 self._selfData.forEach(element => {
-                    if(element.key == "rank_1"){
+                    if (element.key == rank) {
                         scoreLa.string = element.value;
+                    }
+                    if (element.key == "rank_1") {
                         self._currUserScore_lv1 = parseInt(element.value);
-                    }else if(element.key == "rank_2"){
+                    } else if (element.key == "rank_2") {
                         self._currUserScore_lv2 = parseInt(element.value);
-                    }else{
+                    } else {
                         self._currUserScore_lv3 = parseInt(element.value);
                     }
                 });
@@ -112,7 +137,7 @@ cc.Class({
         });
     },
 
-    createUserBlock (user) {
+    createUserBlock(user) {
         let node = cc.instantiate(this.prefab);
         node.parent = this.content;
         node.x = 0;
@@ -122,43 +147,64 @@ cc.Class({
         userName.string = user.nickName || user.nickname;
 
         // set avatar
-        cc.loader.load({url: user.avatarUrl, type: 'png'}, (err, texture) => {
+        cc.loader.load({ url: user.avatarUrl, type: 'png' }, (err, texture) => {
             if (err) console.error(err);
             let userIcon = node.getChildByName('avatar').children[0].getComponent(cc.Sprite);
             userIcon.spriteFrame = new cc.SpriteFrame(texture);
         });
     },
 
-    showFriendRank(rankData){
+    showFriendRank(rankData, rankStr) {
+        this.content.removeAllChildren();
         let rank = 1;
         rankData.forEach(element => {
             let node = cc.instantiate(this.prefab);
             node.parent = this.content;
             node.x = 0;
-    
+
             // set nickName
             let userName = node.getChildByName('userName').getComponent(cc.Label);
             userName.string = element.nickName || element.nickname;
-    
+
             // set avatar
-            cc.loader.load({url: element.avatarUrl, type: 'png'}, (err, texture) => {
+            cc.loader.load({ url: element.avatarUrl, type: 'png' }, (err, texture) => {
                 if (err) console.error(err);
 
                 let userIcon = node.getChildByName('avatar').children[0].getComponent(cc.Sprite);
                 userIcon.spriteFrame = new cc.SpriteFrame(texture);
             });
 
-            let rankingLa = node.getChildByName("ranking").getComponent(cc.Label);
+            let ranking = node.getChildByName("ranking");
             let scoreLa = node.getChildByName("score").getComponent(cc.Label);
-            rankingLa.string = rank < 4?`${rank}st`:`${rank}`;
-            node.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.rankItems[rank - 1]);
+            let suffix = (rank == 1) ? "st" : (rank == 2 ? "nd" : (rank == 3) ? "rd" : "");
 
-            if(element.openid == this._selfOpenId){//玩家本身
-                this.setSelfRank(rankingLa.string)
+            let spCom = null;
+            let rankingStr = "";
+            if (rank == 1) {
+                ranking.removeComponent(cc.Label);
+                spCom = new cc.SpriteFrame(this.rankIcon[0])
+                ranking.addComponent(cc.Sprite).spriteFrame = spCom;
+            } else if (rank == 2) {
+                ranking.removeComponent(cc.Label);
+                spCom = new cc.SpriteFrame(this.rankIcon[1])
+                ranking.addComponent(cc.Sprite).spriteFrame = spCom;
+            } else if (rank == 3) {
+                ranking.removeComponent(cc.Label);
+                spCom = new cc.SpriteFrame(this.rankIcon[2])
+                ranking.addComponent(cc.Sprite).spriteFrame = spCom;
+            } else {
+                ranking.getComponent(cc.Label).string = rankingStr = `${rank}${suffix}`;
+            }
+
+            node.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.rankItems[(rank - 1) % 2]);
+
+
+            if (element.openid == this._selfOpenId) {//玩家本身
+                this.setSelfRank(rankingStr, spCom)
                 console.log("设置自身排名成功！");
             }
             element.KVDataList.forEach(e => {
-                if(e.key == "rank_1"){
+                if (e.key == rankStr) {
                     scoreLa.string = e.value;
                 }
             });
@@ -167,65 +213,80 @@ cc.Class({
     },
 
     /**设置玩家排名 */
-    setSelfRank(val){
-        this.selfBlock.getChildByName('ranking').getComponent(cc.Label).string = val;
+    setSelfRank(val, spCom) {
+        let rankNode = this.selfBlock.getChildByName('ranking');
+        if (spCom) {
+            rankNode.removeComponent(cc.Label);
+            rankNode.addComponent(cc.Sprite).spriteFrame = spCom;
+        } else {
+            rankNode.getComponent(cc.Label).string = val;
+        }
     },
     /**上传分数 */
-    setUserCloudStorage(list){
-        if(!this.isMaxScore(list[0].key, list[0].value)){
+    setUserCloudStorage(list) {
+        if (!this.isMaxScore(list[0].key, list[0].value)) {
             console.log("不是历史最高分", list[0].value);
             return;
         }
         wx.setUserCloudStorage({
-            KVDataList:list,
-            success:()=>{
+            KVDataList: list,
+            success: () => {
                 console.log("上传数据成功！")
             },
-            fail:()=>{
+            fail: () => {
                 console.log("上传数据失败！")
             }
         })
     },
     /**当前分数是否是历史最高分数 */
-    isMaxScore(rank, score){
-        if(rank == "rank_1"){
-            if(this._currUserScore_lv1 <= 0)return true;
-            if(this._currUserScore_lv1 < score)return true;
+    isMaxScore(rank, score) {
+        if (rank == "rank_1") {
+            if (this._currUserScore_lv1 <= 0) return true;
+            if (this._currUserScore_lv1 < score) return true;
             return false;
-        }else if(rank == "rank_2"){
-            if(this._currUserScore_lv2 <= 0)return true;
-            if(this._currUserScore_lv2 < score)return true;
+        } else if (rank == "rank_2") {
+            if (this._currUserScore_lv2 <= 0) return true;
+            if (this._currUserScore_lv2 < score) return true;
             return false;
-        }else if(rank == "rank_3"){
-            if(this._currUserScore_lv3 <= 0)return true;
-            if(this._currUserScore_lv3 < score)return true;
+        } else if (rank == "rank_3") {
+            if (this._currUserScore_lv3 <= 0) return true;
+            if (this._currUserScore_lv3 < score) return true;
             return false;
         }
 
     },
 
+    /**刷新排行榜 */
+    updateRank(rank = "s_1", change = 0) {
+        this._updateTimer = change;
+        if (this._updateTimer <= 0) {
+            this._updateTimer++;
+            return;
+        }
+        this.initUserInfo(rank);
+    },
 
-    sortList: function(ListData, order){ //排序(ListData：res.data;order:false降序，true升序)
-        ListData.sort(function(a,b){
+    sortList: function (ListData, rank, order) { //排序(ListData：res.data;order:false降序，true升序)
+        ListData.sort(function (a, b) {
             var AMaxScore = 0;
             var KVDataList = a.KVDataList;
-            for(var i = 0; i < KVDataList.length; i++){
-                if(KVDataList[i].key == "rank_1"){
-                AMaxScore = KVDataList[i].value;
-                }
-            }
-    
-            var BMaxScore = 0;
-            KVDataList = b.KVDataList;
-            for(var i = 0; i<KVDataList.length; i++){
-                if(KVDataList[i].key == "rank_1"){
-                BMaxScore = KVDataList[i].value;
+            for (var i = 0; i < KVDataList.length; i++) {
+                if (KVDataList[i].key == rank) {
+                    AMaxScore = KVDataList[i].value;
                 }
             }
 
-            if(order){
+            var BMaxScore = 0;
+            KVDataList = b.KVDataList;
+            for (var i = 0; i < KVDataList.length; i++) {
+                if (KVDataList[i].key == rank) {
+                    BMaxScore = KVDataList[i].value;
+                }
+            }
+
+            if (order) {
                 return parseInt(AMaxScore) - parseInt(BMaxScore);
-            }else{
+            } else {
                 return parseInt(BMaxScore) - parseInt(AMaxScore);
             }
         });
