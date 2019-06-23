@@ -549,8 +549,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "Label",
-    "_N$string": "Label",
+    "_string": "",
+    "_N$string": "",
     "_fontSize": 34,
     "_lineHeight": 30,
     "_enableWrapText": true,
@@ -604,7 +604,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 75.64,
+      "width": 18.91,
       "height": 40
     },
     "_anchorPoint": {
@@ -647,8 +647,8 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_string": "1000",
-    "_N$string": "1000",
+    "_string": "0",
+    "_N$string": "0",
     "_fontSize": 34,
     "_lineHeight": 40,
     "_enableWrapText": true,

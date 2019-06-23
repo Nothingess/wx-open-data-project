@@ -266,7 +266,7 @@ cc.Class({
         this.initUserInfo(rank);
     },
 
-    sortList: function (ListData, rank, order) { //排序(ListData：res.data;order:false降序，true升序)
+    sortList: function (ListData, rank, order) { //排序(ListData：res.data; rank:哪个榜；order:false降序，true升序)
         ListData.sort(function (a, b) {
             var AMaxScore = 0;
             var KVDataList = a.KVDataList;
