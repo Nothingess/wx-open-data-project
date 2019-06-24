@@ -8,6 +8,7 @@ cc.Class({
         content: cc.Node,
         prefab: cc.Prefab,
         selfBlock: cc.Node,
+        loadPng:cc.Node,
 
         rankItems: {
             default: [],
@@ -25,7 +26,9 @@ cc.Class({
         _currUserScore_lv2: 0,           //第二关分数
         _currUserScore_lv3: 0,           //第三关分数
 
-        _updateTimer: 0
+        _updateTimer: 0,
+
+        _isShowMasking:false
     },
 
     start() {
@@ -46,22 +49,27 @@ cc.Class({
                         this._selfOpenId = data.v;
                         break;
                     case "update":
+                        this.showLoading();
                         this.updateRank("rank_1", 1);
                         this.selfBlock.getChildByName('me').active = false;
                         break;
                     case "s_1":
+                        this.showLoading();
                         this.updateRank("rank_1", 1);
                         this.selfBlock.getChildByName('me').active = false;
                         break;
                     case "s_2":
+                        this.showLoading();
                         this.updateRank("rank_2", 1);
                         this.selfBlock.getChildByName('me').active = false;
                         break;
                     case "s_3":
+                        this.showLoading();
                         this.updateRank("rank_3", 1);
                         this.selfBlock.getChildByName('me').active = false;
                         break;
                     case "s_33":
+                        this.showLoading();
                         this.updateRank("rank_3", 1);
                         this.selfBlock.getChildByName('me').active = true;
                         break;
@@ -69,7 +77,7 @@ cc.Class({
             }
         });
 
-        this.initUserInfo("rank_1");
+        //this.initUserInfo("rank_1");
     },
     /**上传分数 */
     uploadScore(data) {
@@ -177,9 +185,9 @@ cc.Class({
             let ranking = node.getChildByName("ranking");
             let scoreLa = node.getChildByName("score").getComponent(cc.Label);
             let suffix = (rank == 1) ? "st" : (rank == 2 ? "nd" : (rank == 3) ? "rd" : "");
-
-            let spCom = null;
             let rankingStr = "";
+            rankingStr = `${rank}${suffix}`;
+            let spCom = null;
             if (rank == 1) {
                 ranking.removeComponent(cc.Label);
                 spCom = new cc.SpriteFrame(this.rankIcon[0])
@@ -193,7 +201,7 @@ cc.Class({
                 spCom = new cc.SpriteFrame(this.rankIcon[2])
                 ranking.addComponent(cc.Sprite).spriteFrame = spCom;
             } else {
-                ranking.getComponent(cc.Label).string = rankingStr = `${rank}${suffix}`;
+                ranking.getComponent(cc.Label).string = rankingStr;
             }
 
             node.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.rankItems[(rank - 1) % 2]);
@@ -210,6 +218,7 @@ cc.Class({
             });
             rank++;
         });
+        this.hideLoading();
     },
 
     /**设置玩家排名 */
@@ -258,11 +267,11 @@ cc.Class({
 
     /**刷新排行榜 */
     updateRank(rank = "s_1", change = 0) {
-        this._updateTimer = change;
+/*         this._updateTimer = change;
         if (this._updateTimer <= 0) {
             this._updateTimer++;
             return;
-        }
+        } */
         this.initUserInfo(rank);
     },
 
@@ -291,5 +300,19 @@ cc.Class({
             }
         });
         return ListData;
+    },
+
+    showLoading() {
+        if(this._isShowMasking)return;
+        this.content.removeAllChildren();
+        this.selfBlock.active = false;
+        this._isShowMasking = true;
+        this.loadPng.active = true;
+    },
+    hideLoading() {
+        if(!this._isShowMasking)return;
+        this.loadPng.active = false;
+        this._isShowMasking = false;
+        this.selfBlock.active = true;
     }
 });
