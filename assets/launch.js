@@ -224,11 +224,14 @@ cc.Class({
     /**设置玩家排名 */
     setSelfRank(val, spCom) {
         let rankNode = this.selfBlock.getChildByName('ranking');
+        let sprite = rankNode.getComponentInChildren(cc.Sprite);
         if (spCom) {
-            rankNode.removeComponent(cc.Label);
-            rankNode.addComponent(cc.Sprite).spriteFrame = spCom;
+            rankNode.getComponent(cc.Label).string = '';
+            sprite.enabled = true;
+            sprite.spriteFrame = spCom;
         } else {
             rankNode.getComponent(cc.Label).string = val;
+            sprite.enabled = false;
         }
     },
     /**上传分数 */
@@ -305,6 +308,7 @@ cc.Class({
     showLoading() {
         if(this._isShowMasking)return;
         this.content.removeAllChildren();
+        this.content.y = 0;
         this.selfBlock.active = false;
         this._isShowMasking = true;
         this.loadPng.active = true;
