@@ -77,7 +77,7 @@ cc.Class({
             }
         });
 
-        //this.initUserInfo("rank_1");
+        this.initUserInfo("rank_1");
     },
     /**上传分数 */
     uploadScore(data) {
@@ -91,19 +91,22 @@ cc.Class({
             keyList: ["rank_1", "rank_2", "rank_3"],
             success: (res) => {
                 this._selfData = res.KVDataList;
+                wx.getUserInfo({
+                    openIdList: ['selfOpenId'],
+                    lang: 'zh_CN',
+                    success: (res) => {
+                        this.showUserRank(res.data[0], rank);
+                        this.initFriendInfo(rank);
+                    },
+                    fail: (res) => {
+                        console.error(res);
+                    }
+                });
+            },
+            fail:()=>{
+                this.initUserInfo(rank);
             }
         })
-        wx.getUserInfo({
-            openIdList: ['selfOpenId'],
-            lang: 'zh_CN',
-            success: (res) => {
-                this.showUserRank(res.data[0], rank);
-                this.initFriendInfo(rank);
-            },
-            fail: (res) => {
-                console.error(res);
-            }
-        });
     },
 
     initFriendInfo(rank) {
@@ -121,7 +124,8 @@ cc.Class({
     showUserRank(user, rank) {
         let self = this;
         let userName = this.selfBlock.getChildByName('userName').getComponent(cc.Label);
-        userName.string = user.nickName || user.nickname;
+        let nameStr = user.nickName || user.nickname;
+        userName.string = nameStr;
         //this._selfOpenId = user.openId;
         cc.loader.load({ url: user.avatarUrl, type: 'png' }, (err, texture) => {
             if (err) console.error(err);
@@ -172,6 +176,8 @@ cc.Class({
 
             // set nickName
             let userName = node.getChildByName('userName').getComponent(cc.Label);
+/*             let nameStr = element.nickName || element.nickname;
+            userName.string = `${nameStr.length > 6?nameStr.substring(0, 6) + "...":nameStr}`; */
             userName.string = element.nickName || element.nickname;
 
             // set avatar

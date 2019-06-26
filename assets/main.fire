@@ -44,8 +44,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.5763993948562783,
-      "y": 0.5763993948562783,
+      "x": 0.8039294052640001,
+      "y": 0.8039294052640001,
       "z": 1
     },
     "_quat": {
@@ -1050,7 +1050,7 @@
     "_N$string": "Label",
     "_fontSize": 34,
     "_lineHeight": 30,
-    "_enableWrapText": true,
+    "_enableWrapText": false,
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,

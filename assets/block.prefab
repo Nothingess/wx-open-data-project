@@ -553,7 +553,7 @@
     "_N$string": "",
     "_fontSize": 34,
     "_lineHeight": 30,
-    "_enableWrapText": true,
+    "_enableWrapText": false,
     "_N$file": null,
     "_isSystemFontUsed": true,
     "_spacingX": 0,
