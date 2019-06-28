@@ -77,7 +77,7 @@ cc.Class({
             }
         });
 
-        this.initUserInfo("rank_1");
+        this.initUserInfo("rank_1", false);
     },
     /**上传分数 */
     uploadScore(data) {
@@ -86,7 +86,7 @@ cc.Class({
     },
 
 
-    initUserInfo(rank) {
+    initUserInfo(rank, isShow = true) {
         wx.getUserCloudStorage({
             keyList: ["rank_1", "rank_2", "rank_3"],
             success: (res) => {
@@ -96,7 +96,8 @@ cc.Class({
                     lang: 'zh_CN',
                     success: (res) => {
                         this.showUserRank(res.data[0], rank);
-                        this.initFriendInfo(rank);
+                        if(isShow)
+                            this.initFriendInfo(rank);
                     },
                     fail: (res) => {
                         console.error(res);
