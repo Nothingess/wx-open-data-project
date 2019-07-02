@@ -8,7 +8,7 @@ cc.Class({
         content: cc.Node,
         prefab: cc.Prefab,
         selfBlock: cc.Node,
-        loadPng:cc.Node,
+        loadPng: cc.Node,
 
         rankItems: {
             default: [],
@@ -25,10 +25,11 @@ cc.Class({
         _currUserScore_lv1: 0,           //第一关分数
         _currUserScore_lv2: 0,           //第二关分数
         _currUserScore_lv3: 0,           //第三关分数
+        _currUserScore_lv4: 0,           //第四关分数
 
         _updateTimer: 0,
 
-        _isShowMasking:false
+        _isShowMasking: false
     },
 
     start() {
@@ -43,6 +44,7 @@ cc.Class({
                     case "rank_1":
                     case "rank_2":
                     case "rank_3":
+                    case "rank_4":
                         this.uploadScore(data);
                         break;
                     case "openid":
@@ -68,10 +70,10 @@ cc.Class({
                         this.updateRank("rank_3", 1);
                         this.selfBlock.getChildByName('me').active = false;
                         break;
-                    case "s_33":
+                    case "s_4":
                         this.showLoading();
-                        this.updateRank("rank_3", 1);
-                        this.selfBlock.getChildByName('me').active = true;
+                        this.updateRank("rank_4", 1);
+                        this.selfBlock.getChildByName('me').active = false;
                         break;
                 }
             }
@@ -88,7 +90,7 @@ cc.Class({
 
     initUserInfo(rank, isShow = true) {
         wx.getUserCloudStorage({
-            keyList: ["rank_1", "rank_2", "rank_3"],
+            keyList: ["rank_1", "rank_2", "rank_3", "rank_4"],
             success: (res) => {
                 this._selfData = res.KVDataList;
                 wx.getUserInfo({
@@ -96,7 +98,7 @@ cc.Class({
                     lang: 'zh_CN',
                     success: (res) => {
                         this.showUserRank(res.data[0], rank);
-                        if(isShow)
+                        if (isShow)
                             this.initFriendInfo(rank);
                     },
                     fail: (res) => {
@@ -104,7 +106,7 @@ cc.Class({
                     }
                 });
             },
-            fail:()=>{
+            fail: () => {
                 this.initUserInfo(rank);
             }
         })
@@ -112,7 +114,7 @@ cc.Class({
 
     initFriendInfo(rank) {
         wx.getFriendCloudStorage({
-            keyList: ["rank_1", "rank_2", "rank_3"],
+            keyList: ["rank_1", "rank_2", "rank_3", "rank_4"],
             success: (res) => {
                 this.showFriendRank(this.sortList(res.data, rank), rank);
             },
@@ -142,8 +144,10 @@ cc.Class({
                         self._currUserScore_lv1 = parseInt(element.value);
                     } else if (element.key == "rank_2") {
                         self._currUserScore_lv2 = parseInt(element.value);
-                    } else {
+                    } else if (element.key == "rank_3") {
                         self._currUserScore_lv3 = parseInt(element.value);
+                    } else {
+                        self._currUserScore_lv4 = parseInt(element.value);
                     }
                 });
             }
@@ -177,8 +181,8 @@ cc.Class({
 
             // set nickName
             let userName = node.getChildByName('userName').getComponent(cc.Label);
-/*             let nameStr = element.nickName || element.nickname;
-            userName.string = `${nameStr.length > 6?nameStr.substring(0, 6) + "...":nameStr}`; */
+            /*             let nameStr = element.nickName || element.nickname;
+                        userName.string = `${nameStr.length > 6?nameStr.substring(0, 6) + "...":nameStr}`; */
             userName.string = element.nickName || element.nickname;
 
             // set avatar
@@ -271,17 +275,21 @@ cc.Class({
             if (this._currUserScore_lv3 <= 0) return true;
             if (this._currUserScore_lv3 < score) return true;
             return false;
+        } else if (rank == "rank_4") {
+            if (this._currUserScore_lv4 <= 0) return true;
+            if (this._currUserScore_lv4 < score) return true;
+            return false;
         }
 
     },
 
     /**刷新排行榜 */
     updateRank(rank = "s_1", change = 0) {
-/*         this._updateTimer = change;
-        if (this._updateTimer <= 0) {
-            this._updateTimer++;
-            return;
-        } */
+        /*         this._updateTimer = change;
+                if (this._updateTimer <= 0) {
+                    this._updateTimer++;
+                    return;
+                } */
         this.initUserInfo(rank);
     },
 
@@ -313,7 +321,7 @@ cc.Class({
     },
 
     showLoading() {
-        if(this._isShowMasking)return;
+        if (this._isShowMasking) return;
         this.content.removeAllChildren();
         this.content.y = 0;
         this.selfBlock.active = false;
@@ -321,7 +329,7 @@ cc.Class({
         this.loadPng.active = true;
     },
     hideLoading() {
-        if(!this._isShowMasking)return;
+        if (!this._isShowMasking) return;
         this.loadPng.active = false;
         this._isShowMasking = false;
         this.selfBlock.active = true;
