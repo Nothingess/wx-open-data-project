@@ -134,6 +134,8 @@ cc.Class({
             if (err) console.error(err);
             let userIcon = self.selfBlock.getChildByName('avatar').children[0].getComponent(cc.Sprite);
             let scoreLa = self.selfBlock.getChildByName("score").getComponent(cc.Label);
+            scoreLa.string = "";
+            self.clearSelfRank();
             userIcon.spriteFrame = new cc.SpriteFrame(texture);
             if (self._selfData != null) {
                 self._selfData.forEach(element => {
@@ -244,6 +246,13 @@ cc.Class({
             rankNode.getComponent(cc.Label).string = val;
             sprite.enabled = false;
         }
+    },
+    clearSelfRank(){
+        let rankNode = this.selfBlock.getChildByName('ranking');
+        let sprite = rankNode.getComponentInChildren(cc.Sprite);
+
+        rankNode.getComponent(cc.Label).string = "未上榜";
+        sprite.enabled = false;
     },
     /**上传分数 */
     setUserCloudStorage(list) {
